@@ -1,4 +1,5 @@
 mod storage;
+mod record;
 
 use storage::Storage;
 use rand::Rng;
