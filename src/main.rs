@@ -1,9 +1,6 @@
 mod storage;
 
 use storage::Storage;
-use std::io::SeekFrom;
-use std::io::Seek;
-use std::io::Write;
 use rand::Rng;
 
 fn main() -> Result<(), std::io::Error> {
@@ -19,6 +16,11 @@ fn main() -> Result<(), std::io::Error> {
     f.write_page(page, &cont)?;
     f.read_page(page, &mut read)?;
     assert!(cont.iter().zip(read.iter()).all(|(a, b)| a == b));
+
+    drop(f);
+    s.close("db", "tbl")?;
+
+    println!("File should have been explicitly closed");
 
     Ok(())
 }

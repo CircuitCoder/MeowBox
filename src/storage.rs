@@ -51,6 +51,21 @@ impl Storage {
   pub fn get(&self, id: u64) -> Option<StorageFile> {
     self.files.get(&id).cloned()
   }
+
+  pub fn extract<D: AsRef<str>, T: AsRef<str>>(&mut self, database: D, table: T) -> Result<Option<StorageFile>, std::io::Error> {
+    // TODO: optimize: into two tables so we don't have to clone here
+    let idkey = (database.as_ref().to_owned(), table.as_ref().to_owned());
+    let id = match self.idmap.get(&idkey) {
+      Some(id) => id,
+      None => return Ok(None),
+    };
+
+    Ok(Some(self.files.remove(&id).expect("Storage out-of-sync")))
+  }
+
+  pub fn close<D: AsRef<str>, T: AsRef<str>>(&mut self, database: D, table: T) -> Result<(), std::io::Error> {
+    self.extract(database, table).map(|_| ())
+  }
 }
 
 #[derive(Clone)]
